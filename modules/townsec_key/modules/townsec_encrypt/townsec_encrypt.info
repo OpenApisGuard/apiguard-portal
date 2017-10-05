@@ -1,0 +1,13 @@
+name = Townsend Security Encryption
+description = Allows remote encryption on a Townsend Security AKM.
+core = 7.x
+package = Encryption
+
+dependencies[] = townsec_key
+
+; Information added by Drupal.org packaging script on 2016-02-24
+version = "7.x-2.0"
+core = "7.x"
+project = "townsec_key"
+datestamp = "1456355939"
+

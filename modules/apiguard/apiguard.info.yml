@@ -1,0 +1,5 @@
+name: Apiguard Default
+description: "Apiguard Default module"
+core: 8.x
+type: module
+package: Apiguard

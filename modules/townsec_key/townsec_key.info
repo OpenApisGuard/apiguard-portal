@@ -1,0 +1,15 @@
+name = Townsend Security Key Connection
+description = Adds integration with Townsend Security Alliance Key Manager encryption services.
+core = 7.x
+package = Encryption
+
+dependencies[] = ctools
+dependencies[] = encrypt
+dependencies[] = user
+
+; Information added by Drupal.org packaging script on 2016-02-24
+version = "7.x-2.0"
+core = "7.x"
+project = "townsec_key"
+datestamp = "1456355939"
+

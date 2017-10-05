@@ -1,0 +1,51 @@
+<?php
+/**
+ * @file
+ * Townsend Security Encryption module file.
+ *
+ * This file includes general functions for Townsend Security Encryption.
+ */
+ 
+ /**
+ * Implements hook_permission().
+ */
+function townsec_key_permission() {
+  $permissions = array(
+    'administer townsend key' => array(
+      'title' => t('Administer Townsend Security Key Connection'),
+      'restrict access' => TRUE,
+    ),
+  );
+  
+  return $permissions;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function townsec_key_menu() {
+  $menu = array();
+
+  $menu['admin/config/services/townsend'] = array(
+    'title' => 'Townsend Key Connection',
+    'description' => 'Connection settings for the Townsend Security Key Connection module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('townsec_key_settings_form'),
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('administer townsend key'),
+    'file' => 'townsec_key.admin.inc',
+  );
+  
+  return $menu;
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ *
+ * Tell ctools about our plugins.
+ */
+function townsec_key_ctools_plugin_directory($module, $plugin) {
+  if (in_array($module, array('encrypt', 'key'))) {
+    return 'plugins/' . $plugin;
+  }
+}

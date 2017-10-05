@@ -1,0 +1,35 @@
+<?php
+/**
+ * @file
+ * Townsend Security Encryption module file.
+ *
+ * General functionality for remote encryption on a Townsend Security AKM.
+ */
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ *
+ * Tell CTools about our plugins.
+ */
+function townsec_encrypt_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'encrypt') {
+    return 'plugins/' . $plugin;
+  }
+}
+
+function townsec_encrypt_form_alter(&$form, &$form_state, $form_id){
+	if($form_id == 'encrypt_config_form'){
+		$form['#validate'][] = 'townsec_encrypt_form_validate';
+	}
+}
+
+function townsec_encrypt_form_validate(&$form, &$form_state){
+	$encryption_method = $form_state['values']['encrypt_encryption_method'];
+	$key_provider = $form_state['values']['encrypt_key_provider'];
+	if($encryption_method == 'townsec_aes' && $key_provider != 'townsec_akm'){
+			form_set_error('provider_settings', 'In order to use Townsend Security Alliance Key Manager onboard encryption, you must use the Townsend AKM key Provider and specify the key name to use.');
+	}
+	if($key_provider == 'townsec_akm' && $encryption_method != 'townsec_aes'){
+		form_set_error('method_settings', 'In order to use the Townsend AKM key provider directly, you must have the Townsend AES onboard encryption selected.');
+	}
+}

@@ -1,0 +1,18 @@
+name = Webform prefill
+description = Pre-fill webforms based on previous webform submissions and URL-parameters.
+core = 7.x
+php = 5.4
+
+dependencies[] = jquery_update
+dependencies[] = libraries (>=2.x)
+dependencies[] = variable
+dependencies[] = webform
+
+scripts[] = webform_prefill.js
+
+; Information added by Drupal.org packaging script on 2017-08-14
+version = "7.x-1.0-rc2"
+core = "7.x"
+project = "webform_prefill"
+datestamp = "1502723051"
+

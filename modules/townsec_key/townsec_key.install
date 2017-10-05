@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for Townsend Key Connection.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function townsec_key_uninstall() {
+  // Delete all of our variables from the variables table.
+  $servers = array('primary', 'backup');
+  foreach ($servers as $name) {
+    variable_del("townsec_akm_{$name}_client_cert_and_key_file");
+    variable_del("townsec_akm_{$name}_ca_cert_file");
+    variable_del("townsec_akm_{$name}_host_server");
+    variable_del("townsec_akm_{$name}_key_port");
+    variable_del("townsec_akm_{$name}_encrypt_port");
+  }
+}

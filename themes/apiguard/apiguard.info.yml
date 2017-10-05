@@ -1,0 +1,21 @@
+name: Open API Gateway
+type: theme
+description: 'Default Open API Guard theme'
+version: '1.0.0'
+core: '8.x'
+project: 'apiguard'
+
+# Defines the base theme
+base theme: classy
+# Defines libraries group in which we can add css/js.
+libraries:
+  - apiguard/global-styling
+
+regions:
+  header: Header
+  social: Social
+  content: Content
+  main_menu: Main meun
+  sidebar_first: First sidebar
+  sidebar_second: Second sidebar
+  footer: Footer

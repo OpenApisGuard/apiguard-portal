@@ -1,0 +1,6 @@
+name: Apiguard Add API Proxy Handler
+description: "Handler to add API proxy to API Gurad Gateway"
+package: Apiguard
+type: module
+version: 1.0
+core: 8.x
