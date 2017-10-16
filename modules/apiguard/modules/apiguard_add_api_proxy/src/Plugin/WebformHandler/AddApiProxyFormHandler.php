@@ -88,6 +88,10 @@ $response = $client->post('http://example.com/api', [
           $client = new Client();
           $response = $client->post($apiguardUrl, [
               'headers' => ['Content-type' => 'application/json'],
+              // 'auth' => [
+              //   'test', 
+              //   'xyz'
+              // ],
               'json' => [
                 'name'=> $name,
                 'request_uri'=> $requestUri,
@@ -102,9 +106,9 @@ $response = $client->post('http://example.com/api', [
          
           if ($code >= 200 && $code < 300) {
             $jresp = json_decode($respBody, true);
-            $jresp['reqUri'];
-            $jresp['name'];
-            $jresp['downstreamUri'];
+            $msg = 'Porxy name = ' . $jresp['name'] . PHP_EOL .
+                'Porxy endpoint = ' . $jresp['reqUri'] . PHP_EOL .
+                'Target endpoint = ' . $jresp['downstreamUri'];
             drupal_set_message(t("Successful: ") . $respBody);
           }
           else {

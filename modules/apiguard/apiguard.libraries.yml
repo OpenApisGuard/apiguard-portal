@@ -1,0 +1,9 @@
+# Admin.
+
+apiguard.settings:
+  version: VERSION
+  css:
+    theme:
+      css/apiguard.settings.css: {}
+
+

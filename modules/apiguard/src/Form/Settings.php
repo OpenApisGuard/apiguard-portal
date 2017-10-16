@@ -3,7 +3,10 @@
 namespace Drupal\apiguard\Form;
 
 use Drupal\Core\Form\FormStateInterface;
+
 use Drupal\apiguard\Core\Utils\KeyFile;
+use Drupal\apiguard\Core\Utils\Signature;
+
 use \Defuse\Crypto\Crypto;
 use \Defuse\Crypto\Key;
 
@@ -17,15 +20,17 @@ class Settings extends ApiFormBase {
 
   public function buildForm(array $form, FormStateInterface $form_state) {
 
+    $attachments['#attached']['library'][] = 'apiguard/apiguard.settings';
+
     $statusCode = $form_state->get('statusCode');
     if ($statusCode === NULL || empty($statusCode)) {  
       $status = '<span style="color:red !important">' . t('Unknown') . '</span>';
     }
     else if (is_numeric($statusCode) && ! preg_match('/^(?:4|5)[0-9]{2}$/', $statusCode)){
-      $status = '<span style="color:green">' . t('Successful') . '</span>';
+      $status = '<div class="success">' . t('Successful') . '</div>';
     }
     else {
-      $status = '<span style="color:red">' . $statusCode . '</span>';
+      $status = '<span class="fail">' . $statusCode . '</span>';
     }
 
     $form['#tree'] = TRUE;
@@ -41,14 +46,20 @@ class Settings extends ApiFormBase {
         '#title' => t('Gateway URL'),
     ];
 
+/*
     $form['configs_fieldset']['api_guard_settings_group'] = [
         '#type' => 'textfield',
         '#title' => t('Group'),
     ];
-
+*/
     $form['configs_fieldset']['api_guard_settings_user_id'] = [
         '#type' => 'textfield',
         '#title' => t('User'),
+    ];
+
+    $form['configs_fieldset']['api_guard_settings_user_pwd'] = [
+        '#type' => 'password',
+        '#title' => t('Password'),
     ];
 
     $form['configs_fieldset']['test_connection_status'] = [
@@ -59,6 +70,10 @@ class Settings extends ApiFormBase {
 
     $form['configs_fieldset']['actions'] = [
       '#type' => 'actions',
+    ];
+
+    $form['configs_fieldset']['secret'] = [
+        '#type' => 'hidden',
     ];
 
     $form['configs_fieldset']['actions']['test_connection'] = [
@@ -86,6 +101,7 @@ class Settings extends ApiFormBase {
       $form['configs_fieldset']['api_guard_endpoint_url']['#default_value'] = $props['url'];
       $form['configs_fieldset']['api_guard_settings_group']['#default_value'] = $props['group'];
       $form['configs_fieldset']['api_guard_settings_user_id']['#default_value'] = $props['userId'];
+      $form['configs_fieldset']['secret']['#default_value'] = Crypto::encrypt($props['pwd'], $key);
     }
 
     return $form;
@@ -101,8 +117,27 @@ class Settings extends ApiFormBase {
   function testConnection(array &$form, FormStateInterface $form_state) {
     #$url = $form['configs_fieldset']['api_guard_endpoint_url']['#value'];
     try {
-      $url = $form_state->getValue(['configs_fieldset', 'api_guard_endpoint_url']);
-      $response = \Httpful\Request::get($url)->send();
+      $url = $form_state->getValue(['configs_fieldset', 'api_guard_endpoint_url']) . "/health";
+#      $date = date("Y-m-d h:i:sa");
+      $date = '2017-10-12 03:45:27pm';
+      $pwd = $form_state->getValue(['configs_fieldset', 'api_guard_settings_user_pwd']);
+      if ($pwd == '') {
+        $key = Key::loadFromAsciiSafeString(KeyFile::getSystemKey());
+        $pwd = Crypto::decrypt($form['configs_fieldset']['secret']['#value'], $key);
+      }
+
+      $secret = $form_state->getValue(['configs_fieldset', 'api_guard_settings_user_id']) .
+                ':' .
+                 $pwd;
+
+      $sig = Signature::getBase64HmacSha256($url, $date, '', $secret);
+
+      $response = \Httpful\Request::post($url)
+                  ->addHeaders(array(
+                    'Authorization' => $sig,           
+                    'Date' => $date,
+                  ))
+                  ->send();
 
       $form_state->set('statusCode', $response->code);
     }
@@ -124,7 +159,8 @@ class Settings extends ApiFormBase {
     try {
       $data = 'url=' . $form_state->getValue(['configs_fieldset', 'api_guard_endpoint_url']) . PHP_EOL .
               'group=' . $form_state->getValue(['configs_fieldset', 'api_guard_settings_group']) . PHP_EOL .
-              'userId=' . $form_state->getValue(['configs_fieldset', 'api_guard_settings_user_id']);
+              'userId=' . $form_state->getValue(['configs_fieldset', 'api_guard_settings_user_id']) . PHP_EOL .
+              'pwd=' . $form_state->getValue(['configs_fieldset', 'api_guard_settings_user_pwd']);
 
       $key = Key::loadFromAsciiSafeString(KeyFile::getSystemKey());
       $cipher = Crypto::encrypt($data, $key);
