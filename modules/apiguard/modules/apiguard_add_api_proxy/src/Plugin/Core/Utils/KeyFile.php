@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\apiguard\Core\Utils;
+namespace Drupal\apiguard_add_api_proxy\Plugin\Core\Utils;
 
 use \Defuse\Crypto\Key;
 

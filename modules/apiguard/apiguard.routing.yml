@@ -1,7 +1,7 @@
-apiguard:
+apiguard.settings:
   path: 'openapiguard/settings'
   defaults:
     _form:  '\Drupal\apiguard\Form\Settings'
-    _title: 'Api Guard Config Settings'
+    _title: 'Api Guard Gateway Settings'
   requirements:
     _permission: 'access content'

@@ -18,6 +18,25 @@ use \Defuse\Crypto\Key;
 class Settings extends ApiFormBase {
   private const CONFIG_FILE = 'private/.apiguard';
 
+  public static $CONFIG_URL = '';
+  public static $CONFIG_GROUP = '';
+  public static $CONFIG_USERID = '';
+  public static $CONFIG_USERPWD = '';
+
+  public static function init() {
+    if (file_exists(self::CONFIG_FILE)) {
+      $cipher = file_get_contents(self::CONFIG_FILE);
+      $key = Key::loadFromAsciiSafeString(KeyFile::getSystemKey());
+      $data = Crypto::decrypt($cipher, $key);
+
+      $props = parse_ini_string($data);
+      Settings::$CONFIG_URL = $props['url'];
+      Settings::$CONFIG_GROUP = $props['group'];
+      Settings::$CONFIG_USERID = $props['userId'];
+      Settings::$CONFIG_USERPWD = Crypto::encrypt($props['pwd'], $key);
+    }
+  }
+
   public function buildForm(array $form, FormStateInterface $form_state) {
 
     $attachments['#attached']['library'][] = 'apiguard/apiguard.settings';
@@ -93,15 +112,10 @@ class Settings extends ApiFormBase {
     ];
 
     if (file_exists(self::CONFIG_FILE)) {
-      $cipher = file_get_contents(self::CONFIG_FILE);
-      $key = Key::loadFromAsciiSafeString(KeyFile::getSystemKey());
-      $data = Crypto::decrypt($cipher, $key);
-
-      $props = parse_ini_string($data);
-      $form['configs_fieldset']['api_guard_endpoint_url']['#default_value'] = $props['url'];
-      $form['configs_fieldset']['api_guard_settings_group']['#default_value'] = $props['group'];
-      $form['configs_fieldset']['api_guard_settings_user_id']['#default_value'] = $props['userId'];
-      $form['configs_fieldset']['secret']['#default_value'] = Crypto::encrypt($props['pwd'], $key);
+      $form['configs_fieldset']['api_guard_endpoint_url']['#default_value'] = Settings::$CONFIG_URL;
+      $form['configs_fieldset']['api_guard_settings_group']['#default_value'] = Settings::$CONFIG_GROUP;
+      $form['configs_fieldset']['api_guard_settings_user_id']['#default_value'] = Settings::$CONFIG_USERID;
+      $form['configs_fieldset']['secret']['#default_value'] = Settings::$CONFIG_USERPWD;
     }
 
     return $form;
@@ -118,8 +132,7 @@ class Settings extends ApiFormBase {
     #$url = $form['configs_fieldset']['api_guard_endpoint_url']['#value'];
     try {
       $url = $form_state->getValue(['configs_fieldset', 'api_guard_endpoint_url']) . "/health";
-#      $date = date("Y-m-d h:i:sa");
-      $date = '2017-10-12 03:45:27pm';
+      $date = date("Y-m-d h:i:sa");
       $pwd = $form_state->getValue(['configs_fieldset', 'api_guard_settings_user_pwd']);
       if ($pwd == '') {
         $key = Key::loadFromAsciiSafeString(KeyFile::getSystemKey());
@@ -175,5 +188,6 @@ class Settings extends ApiFormBase {
       drupal_set_message(t('Failed to save properties: ') . $e->getMessage(), 'error');
     }
   }
-
 }
+
+Settings::init();
